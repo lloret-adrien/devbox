@@ -24,18 +24,20 @@
     
     <!-- Dossiers -->
     <div class="block-content transform folders">
-      <div class="title">Dossiers</div>
-      <ul>
-        <li v-for="folder in folders" :key="folder.id" class="folder">
-          <svg class="folder-svg" xmlns="http://www.w3.org/2000/svg" width="121.722" height="97.378" viewBox="0 0 121.722 97.378">
-            <path id="Icon_material-folder" data-name="Icon material-folder" d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z" transform="translate(-3 -6)" fill="#e9665b"/>
-          </svg>
-          <svg class="star-svg" xmlns="http://www.w3.org/2000/svg" width="21.745" height="20.813" viewBox="0 0 21.745 20.813">
-            <path data-name="Icon awesome-star" d="M11.147.723,8.493,6.1,2.555,6.97a1.3,1.3,0,0,0-.719,2.219l4.3,4.186L5.116,19.289A1.3,1.3,0,0,0,7,20.659l5.312-2.792,5.312,2.792a1.3,1.3,0,0,0,1.886-1.37L18.5,13.376l4.3-4.186a1.3,1.3,0,0,0-.719-2.219L16.134,6.1,13.48.723a1.3,1.3,0,0,0-2.333,0Z" transform="translate(-1.441 0.001)" fill="#f7f7f7"/>
-          </svg>
-          <span class="folder-name">{{ folder.name }}</span>
-        </li>
-      </ul>
+      <div class="content">
+        <div class="title">Dossiers</div>
+        <ul>
+          <li v-for="folder in folders" :key="folder.id" class="folder">
+            <svg class="folder-svg" xmlns="http://www.w3.org/2000/svg" width="121.722" height="97.378" viewBox="0 0 121.722 97.378">
+              <path id="Icon_material-folder" data-name="Icon material-folder" d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z" transform="translate(-3 -6)" fill="#e9665b"/>
+            </svg>
+            <svg class="star-svg" xmlns="http://www.w3.org/2000/svg" width="21.745" height="20.813" viewBox="0 0 21.745 20.813">
+              <path data-name="Icon awesome-star" d="M11.147.723,8.493,6.1,2.555,6.97a1.3,1.3,0,0,0-.719,2.219l4.3,4.186L5.116,19.289A1.3,1.3,0,0,0,7,20.659l5.312-2.792,5.312,2.792a1.3,1.3,0,0,0,1.886-1.37L18.5,13.376l4.3-4.186a1.3,1.3,0,0,0-.719-2.219L16.134,6.1,13.48.723a1.3,1.3,0,0,0-2.333,0Z" transform="translate(-1.441 0.001)" fill="#f7f7f7"/>
+            </svg>
+            <span class="folder-name">{{ folder.name }}</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <button function="show-add-ressource">+</button>
@@ -245,6 +247,14 @@ body {
 }
 .transform {
   transform: translateY(-1rem);
+}
+.content {
+  position: absolute;
+  background-color: var(--folder-background-color);
+  width: calc(100% - 2rem);
+  left: 0;
+  padding-left: 2rem;
+  padding-bottom: 2rem;
 }
 
 .title {
