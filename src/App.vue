@@ -108,7 +108,7 @@ export default {
   },
   methods: {
     getPinnedRessources() {
-      return this.ressources.sort((r) => r.pinned)
+      return this.ressources.filter((r) => r.pinned)
     }
   }
 }
