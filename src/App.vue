@@ -65,7 +65,10 @@
     </div>
 
     <!-- Bouton ajout de ressource -->
-    <button function="show-add-ressource">+</button>
+    <button @click="showAddRessource = !showAddRessource" function="show-add-ressource">+</button>
+
+    <!-- Modal d'ajout d'une ressource -->
+    <AddRessourceForm @close="showAddRessource = !showAddRessource" :folders="folders" :showAddRessource="showAddRessource"/>
   </div>
 </template>
 
@@ -73,6 +76,7 @@
 import PinnedRessource from './components/PinnedRessource.vue'
 import RessourceCard from './components/RessourceCard.vue'
 import SearchBar from './components/SearchBar.vue'
+import AddRessourceForm from './components/AddRessourceForm.vue'
 
 export default {
   name: 'App',
@@ -80,6 +84,7 @@ export default {
     PinnedRessource,
     RessourceCard,
     SearchBar,
+    AddRessourceForm,
   },
   data() {
     return {
@@ -143,7 +148,8 @@ export default {
           favorite: true,
         },
       ],
-      openFolder: null
+      openFolder: null,
+      showAddRessource: false,
     }
   },
   methods: {
@@ -154,13 +160,6 @@ export default {
       return this.ressources.filter((r) => !r.folder)
     },
     showRessourcesFolder(folder) {
-      // const folderName = this.folders.filter((f) => f.id === folderId)[0].name
-      // const ressources = this.ressources.filter((r) => r.folder === folderId)
-      // console.log(ressources)
-      // if (!ressources.length) {
-      //   console.log('Aucun élément')
-      //   return
-      // }
       this.openFolder = folder
     },
     getRessourcesFolder(folderId) {
@@ -325,21 +324,14 @@ body, * {
 .folders .back-content {
   background-color: var(--folder-background-color);
 }
-.not-listed .back-content {
+.not-listed, .not-listed .back-content {
   background-color: var(--not-listed-color);
 }
-.folder-content .back-content {
+.folder-content, .folder-content .back-content {
   background-color: var(--folder-content-color);
 }
 
-.folder-content {
-  background-color: var(--folder-content-color);
-}
-.not-listed {
-  background-color: var(--not-listed-color);
-}
-
-.folder-content .close {
+.close {
   position: absolute;
   cursor: pointer;
   font-size: 20px;
