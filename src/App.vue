@@ -5,7 +5,7 @@
 
     <div class="header">
       <img src="./assets/logo.png" alt="devbox logo">
-      <SearchBar/>
+      <SearchBar @search="search"/>
     </div>
 
     <!-- Ressources épinglés -->
@@ -14,7 +14,7 @@
     </div>
 
     <!-- Consultés dernièrement -->
-    <div class="block-content last-viewed-ressources">
+    <div v-if="!searchValue" class="block-content last-viewed-ressources">
       <div class="back-content"></div>
       <div class="title">Consultés dernièrement</div>
       <ul>
@@ -26,13 +26,13 @@
     </div>
 
     <!-- Dossiers -->
-    <div class="block-content folders">
+    <div v-if="!searchValue || (searchValue && getFoldersWithFavoriteFirst().length)" class="block-content folders">
       <div class="back-content"></div>
       <div class="title">Dossiers</div>
       <ul>
         <li v-for="folder in getFoldersWithFavoriteFirst()" :key="folder.id" class="folder" @contextmenu.prevent="showContext(true, folder, $event)">
           <svg class="folder-svg" xmlns="http://www.w3.org/2000/svg" width="121.722" height="97.378" viewBox="0 0 121.722 97.378">
-            <path @click="showRessourcesFolder(folder)" data-name="Icon material-folder" d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z" transform="translate(-3 -6)" fill="#e9665b"/>
+            <path @click="openFolder = folder" data-name="Icon material-folder" d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z" transform="translate(-3 -6)" fill="#e9665b"/>
           </svg>
           <svg class="star-svg" :class="folder.favorite ? 'favorite' : ''" xmlns="http://www.w3.org/2000/svg" width="21.745" height="20.813" viewBox="0 0 21.745 20.813">
             <path @click="changeFavorite(folder)" data-name="Icon awesome-star" d="M11.147.723,8.493,6.1,2.555,6.97a1.3,1.3,0,0,0-.719,2.219l4.3,4.186L5.116,19.289A1.3,1.3,0,0,0,7,20.659l5.312-2.792,5.312,2.792a1.3,1.3,0,0,0,1.886-1.37L18.5,13.376l4.3-4.186a1.3,1.3,0,0,0-.719-2.219L16.134,6.1,13.48.723a1.3,1.3,0,0,0-2.333,0Z" transform="translate(-1.441 0.001)" fill="#f7f7f7"/>
@@ -53,6 +53,20 @@
           <div class="separation" v-if="i < getRessourcesFolder(openFolder.id).length - 1"></div>
         </li>
       </ul>
+    </div>
+
+    <!-- Résultat de la recherche dans chaque dossiers -->
+    <div v-for="folder in folders" :key="folder.id">
+      <div v-if="searchValue && filterWithSearch(getRessourcesFolder(folder.id)).length" class="block-content folder-content">
+        <div class="back-content"></div>
+        <div class="title">{{ folder.name }}</div>
+        <ul>
+          <li v-for="(item, i) in filterWithSearch(getRessourcesFolder(folder.id))" :key="item.id">
+            <RessourceCard @contextmenu.prevent="showContext(false, item, $event)" @consultRessource="addRecentlyConsulted" :ressource="item"/>
+            <div class="separation" v-if="i < filterWithSearch(getRessourcesFolder(folder.id)).length - 1"></div>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Non répertoriés -->
@@ -108,6 +122,7 @@ export default {
       recentlyConsulted: [],
       openFolder: null,
       showAddRessource: false,
+      searchValue: null,
     }
   },
   mounted() {
@@ -120,6 +135,23 @@ export default {
     })
   },
   methods: {
+    search(value) {
+      if (value.length >= 2) {
+        this.searchValue = value.toLowerCase()
+        this.openFolder = null
+      } else {
+        this.searchValue = null
+      }
+    },
+    filterWithSearch(array, isFolder) {
+      return isFolder === true ?
+        array.filter((elt) => elt.name.toLowerCase().includes(this.searchValue)) :
+          array.filter((elt) => {
+            return elt.name.toLowerCase().includes(this.searchValue) ||
+              elt.desc?.toLowerCase().includes(this.searchValue) ||
+                elt.url.toLowerCase().includes(this.searchValue)
+          })
+    },
     hideContext() {
       this.context.ressource = null
       this.context.folder = null
@@ -173,23 +205,23 @@ export default {
       }
     },
     getPinnedRessources() {
-      return this.ressources.filter((r) => r.pinned && !r.deleted)
+      const ressources = this.ressources.filter((r) => r.pinned && !r.deleted)
+      return this.searchValue ? this.filterWithSearch(ressources) : ressources
     },
     getNotListedRessources() {
-      return this.ressources.filter((r) => !r.folder && !r.deleted)
-    },
-    showRessourcesFolder(folder) {
-      this.openFolder = folder
+      const ressources = this.ressources.filter((r) => !r.folder && !r.deleted && !r.pinned)
+      return this.searchValue ? this.filterWithSearch(ressources) : ressources
     },
     getRessourcesFolder(folderId) {
-      return this.ressources.filter((r) => r.folder === folderId && !r.deleted)
+      return this.ressources.filter((r) => r.folder === folderId && !r.deleted && !r.pinned)
     },
     getFoldersWithFavoriteFirst() {
-      return this.folders.sort(function compare(a, b) {
+      const folders = this.folders.sort(function compare(a, b) {
         if (a.favorite && a.favorite != b.favorite) return -1
         if (b.favorite && a.favorite != b.favorite) return 1
         return 0
       }).filter((f) => !f.deleted)
+      return this.searchValue ? this.filterWithSearch(folders, true) : folders
     },
     changeFavorite(folder) {
       folder.favorite = !folder.favorite
@@ -270,6 +302,7 @@ body, * {
   color: var(--text-color);
   max-width: 100vw;
   background-color: var(--background-color);
+  min-height: 100vh;
 }
 
 .header {
