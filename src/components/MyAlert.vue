@@ -28,7 +28,7 @@ export default {
     border-radius: 10px;
     display: block;
     position: fixed;
-    width: 250px;
+    max-width: 260px;
     top: 10px;
     z-index: 10;
     left: calc(50% - 125px);

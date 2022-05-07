@@ -1,5 +1,5 @@
 <template>
-  <a @click="this.$emit('consultRessource', this.ressource)" :href="ressource.url" target="_blank" class="ressource-card" :class="ressource.pinned && pinnedSection ? 'pinned' : ''">
+  <a @click.left="this.$emit('consultRessource', this.ressource)" :href="ressource.url" target="_blank" class="ressource-card" :class="ressource.pinned && pinnedSection ? 'pinned' : ''">
     <div class="img" :style="setBackground()"></div>
     <div class="container">
       <span class="name">{{ ressource.name }}</span>
@@ -31,6 +31,7 @@ export default {
   min-width: 320px;
   min-height: 100px;
   text-decoration: none;
+  color: var(--text-color);
 }
 
 .ressource-card:not(.pinned):hover {
@@ -65,7 +66,6 @@ export default {
   margin: 1rem 0 0 2rem;
   align-items: start;
   text-align: start;
-  color: var(--text-color);
 }
 
 .pinned {
