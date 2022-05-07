@@ -1,5 +1,7 @@
 <template>
   <div class="app">
+    <MyAlert v-if="alert.message" @closeAlert="closeAlert" :alert="alert"/>
+
     <div class="header">
       <img src="./assets/logo.png" alt="devbox logo">
       <SearchBar/>
@@ -7,7 +9,7 @@
 
     <!-- Ressources épinglés -->
     <div v-if="getPinnedRessources().length" class="carousel">
-      <PinnedRessource v-for="item in getPinnedRessources()" :key="item.id" :ressource="item"/>
+      <RessourceCard @consultRessource="addRecentlyConsulted" v-for="item in getPinnedRessources()" :key="item.id" :ressource="item" :pinnedSection="true"/>
     </div>
     
     <!-- Consultés dernièrement -->
@@ -15,9 +17,9 @@
       <div class="back-content"></div>
       <div class="title">Consultés dernièrement</div>
       <ul>
-        <li v-for="(item, i) in ressources" :key="item.id">
+        <li v-for="(item, i) in recentlyConsulted" :key="item.id">
           <RessourceCard :ressource="item"/>
-          <div class="separation" v-if="i < ressources.length - 1"></div>
+          <div class="separation" v-if="i < recentlyConsulted.length - 1"></div>
         </li>
       </ul>
     </div>
@@ -46,7 +48,7 @@
       <div class="close" @click="openFolder = null">X</div>
       <ul>
         <li v-for="(item, i) in getRessourcesFolder(openFolder.id)" :key="item.id">
-          <RessourceCard :ressource="item"/>
+          <RessourceCard @consultRessource="addRecentlyConsulted" :ressource="item"/>
           <div class="separation" v-if="i < getRessourcesFolder(openFolder.id).length - 1"></div>
         </li>
       </ul>
@@ -58,7 +60,7 @@
       <div class="title">Non répertoriés</div>
       <ul>
         <li v-for="(item, i) in getNotListedRessources()" :key="item.id">
-          <RessourceCard :ressource="item"/>
+          <RessourceCard @consultRessource="addRecentlyConsulted" :ressource="item"/>
           <div class="separation" v-if="i < getNotListedRessources().length - 1"></div>
         </li>
       </ul>
@@ -68,12 +70,11 @@
     <button @click="showAddRessource = !showAddRessource" function="show-add-ressource">+</button>
 
     <!-- Modal d'ajout d'une ressource -->
-    <AddRessourceForm @close="showAddRessource = !showAddRessource" :folders="folders" :showAddRessource="showAddRessource"/>
+    <AddRessourceForm @errorAlert="errorAlert" @addRessource="add" @close="showAddRessource = !showAddRessource" :folders="folders" :showAddRessource="showAddRessource"/>
   </div>
 </template>
 
 <script>
-import PinnedRessource from './components/PinnedRessource.vue'
 import RessourceCard from './components/RessourceCard.vue'
 import SearchBar from './components/SearchBar.vue'
 import AddRessourceForm from './components/AddRessourceForm.vue'
@@ -81,76 +82,28 @@ import AddRessourceForm from './components/AddRessourceForm.vue'
 export default {
   name: 'App',
   components: {
-    PinnedRessource,
     RessourceCard,
     SearchBar,
     AddRessourceForm,
   },
   data() {
     return {
-      ressources: [
-        {
-          id: 1,
-          name: 'Adonis JS',
-          url: 'https://adonisjs.com/',
-          desc: 'AdonisJS - A fully featured web framework for Node.js',
-          pinned: true,
-          folder: 2
-        },
-        {
-          id: 2,
-          name: 'Anime JS',
-          url: 'https://animejs.com/',
-          desc: 'anime.js • JavaScript animation engine',
-          pinned: true,
-          folder: 1
-        },
-        {
-          id: 3,
-          name: 'Three JS',
-          url: 'https://threejs.org/',
-          desc: '',
-          pinned: false,
-          folder: 1
-        },
-        {
-          id: 4,
-          name: 'MDN',
-          url: '',
-          desc: 'The MDN Web Docs site provides information about Open Web technologies including HTML, CSS, and APIs for both Web sites and progressive web apps.',
-          pinned: false,
-          folder: null
-        },
-      ],
-      folders: [
-        {
-          id: 1,
-          name: 'JavaScript Front',
-          icon: '',
-          favorite: true,
-        },
-        {
-          id: 2,
-          name: 'JavaScript Back',
-          icon: '',
-          favorite: true,
-        },
-        {
-          id: 3,
-          name: 'Python',
-          icon: '',
-          favorite: false,
-        },
-        {
-          id: 4,
-          name: 'PHP',
-          icon: '',
-          favorite: true,
-        },
-      ],
+      alert: {
+        message: '',
+        type: '',
+        bump: false,
+      },
+      ressources: [],
+      folders: [],
+      recentlyConsulted: [],
       openFolder: null,
       showAddRessource: false,
     }
+  },
+  mounted() {
+    this.ressources = JSON.parse(localStorage.getItem('ressources')) || []
+    this.recentlyConsulted = JSON.parse(localStorage.getItem('recentlyConsulted')) || []
+    this.folders = JSON.parse(localStorage.getItem('folders')) || []
   },
   methods: {
     getPinnedRessources() {
@@ -174,6 +127,54 @@ export default {
     },
     changeFavorite(folder) {
       folder.favorite = !folder.favorite
+      localStorage.setItem('folders', JSON.stringify(this.folders))
+    },
+    async add(element) {
+      if (element.folder) element.folder = Number(element.folder)
+      element.id = this.ressources.length + 1
+
+      const text = await fetch(element.url).then(async (response) => {
+        if (response.ok) return response.text()
+        return null
+      }).catch(() => {
+        return null
+      })
+      if (text) {
+        const div = document.createElement('div')
+        div.innerHTML = text.trim()
+        div.style.display = 'none'
+        document.body.prepend(div)
+        element.desc = div.querySelector('title').innerText
+        div.remove()
+      }
+      this.ressources.push(element)
+      localStorage.setItem('ressources', JSON.stringify(this.ressources))
+      this.alert.bump = false
+      this.alert.message = 'Ressource ajoutée avec succès 🥳'
+      this.alert.type = 'success'
+    },
+    addRecentlyConsulted(ressource) {
+      const index = this.recentlyConsulted.findIndex((elt) => elt.id === ressource.id)
+      if (index > -1) {
+        this.recentlyConsulted.splice(index, 1)
+      } else if (this.recentlyConsulted.length >= 3) {
+        this.recentlyConsulted.pop()
+      }
+      this.recentlyConsulted.unshift(ressource)
+      localStorage.setItem('recentlyConsulted', JSON.stringify(this.recentlyConsulted))
+    },
+    closeAlert() {
+      this.alert.message = ''
+      this.alert.type = ''
+      this.alert.bump = false
+    },
+    errorAlert(value) {
+      if (this.alert.message === value) {
+        this.alert.bump = true
+        return
+      }
+      this.alert.message = value
+      this.alert.type = 'error'
     }
   }
 }

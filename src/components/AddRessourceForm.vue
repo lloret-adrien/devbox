@@ -5,20 +5,25 @@
       <div class="title">Nouvelle Ressource</div>
     </div>
     <div class="close" @click="closeModal()">X</div>
+    <input placeholder="Titre" type="text" name="name" required>
     <input placeholder="Lien" type="text" name="url" required>
-    <div class="select">
-      <select name="folder">
-        <option class="placeholder" value="">Dossier</option>
-        <option v-for="folder in folders" :key="folder.id" :value="folder.id">{{ folder.name }}</option>
-      </select>
-      <div class="select__arrow"></div>
+    <input placeholder="Image" type="text" name="img_url">
+    <div class="flex">
+      <div class="select">
+        <select name="folder">
+          <option class="placeholder" value="">Dossier</option>
+          <option v-for="folder in folders" :key="folder.id" :value="folder.id">{{ folder.name }}</option>
+        </select>
+        <div class="select__arrow"></div>
+      </div>
+      <label id="pinned" class="control control--checkbox">
+        Épinglé
+        <input type="checkbox" name="pinned"/>
+        <div class="control__indicator"></div>
+      </label>
     </div>
-    <label id="pinned" class="control control--checkbox">
-      Épinglé
-      <input type="checkbox"/>
-      <div class="control__indicator"></div>
-    </label>
-    <input type="submit" value="Enregistrer">
+    
+    <input @click.prevent="addRessource()" type="submit" value="Enregistrer">
   </form>
 </template>
 
@@ -27,12 +32,32 @@ export default {
   name: 'AddRessourceForm',
   props: {
     folders: Array,
+    ressources: Array,
     showAddRessource: Boolean,
   },
   methods: {
     closeModal() {
       this.$emit('close', false)
-    }
+    },
+    addRessource() {
+      const url = document.querySelector('[name="url"]')?.value
+      const folder = document.querySelector('[name="folder"]')?.value || null
+      const pinned = document.querySelector('[name="pinned"]')?.checked
+      const name = document.querySelector('[name="name"]')?.value
+      const image = document.querySelector('[name="img_url"]')?.value
+      if (url.length > 0 && name && image) {
+        this.$emit('addRessource', {
+          url,
+          folder,
+          pinned,
+          name,
+          image,
+        })
+        this.closeModal()
+      } else {
+        this.$emit('errorAlert', 'Veuillez au moins indiquer les 3 premiers champs 😡')
+      }
+    },
   }
 }
 </script>
@@ -86,6 +111,7 @@ form input[type="submit"] {
 }
 .select { 
   position: relative;
+  flex: 1;
 }
 .select select::-ms-expand {
   display: none;
@@ -127,6 +153,7 @@ option.placeholder {
   display: flex;
   text-align: center;
   align-items: center;
+  flex: 1;
 }
 .control__indicator {
   position: absolute;
@@ -172,5 +199,11 @@ option.placeholder {
 }
 .control__indicator:after {
   background: #7b7b7b;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 </style>
