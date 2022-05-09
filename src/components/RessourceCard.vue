@@ -64,7 +64,7 @@ export default {
   flex-direction: column;
   gap: 0.2rem;
   margin: 1rem 0 0 2rem;
-  align-items: start;
+  align-items: flex-start;
   text-align: start;
 }
 

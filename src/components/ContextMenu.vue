@@ -163,7 +163,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  background-color: rgb(19 39 193 / 20%);
+  background-color: rgba(19, 39, 193, 0.38);
   backdrop-filter: blur(5px);
   box-shadow: 0px 0px 10px 4px #5552b669;
   gap: 0.5rem;

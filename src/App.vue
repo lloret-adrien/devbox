@@ -15,7 +15,7 @@
 
     <div class="header">
       <img src="./assets/logo.png" alt="devbox logo" />
-      <SearchBar />
+      <SearchBar @search="search" />
     </div>
 
     <!-- Ressources épinglés -->
@@ -31,7 +31,7 @@
     </div>
 
     <!-- Consultés dernièrement -->
-    <div class="block-content last-viewed-ressources">
+    <div v-if="!searchValue" class="block-content last-viewed-ressources">
       <div class="back-content"></div>
       <div class="title">Consultés dernièrement</div>
       <ul>
@@ -43,7 +43,12 @@
     </div>
 
     <!-- Dossiers -->
-    <div class="block-content folders">
+    <div
+      v-if="
+        !searchValue || (searchValue && getFoldersWithFavoriteFirst().length)
+      "
+      class="block-content folders"
+    >
       <div class="back-content"></div>
       <div class="title">Dossiers</div>
       <ul>
@@ -61,7 +66,7 @@
             viewBox="0 0 121.722 97.378"
           >
             <path
-              @click="showRessourcesFolder(folder)"
+              @click="openFolder = folder"
               data-name="Icon material-folder"
               d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z"
               transform="translate(-3 -6)"
@@ -113,6 +118,39 @@
           ></div>
         </li>
       </ul>
+    </div>
+
+    <!-- Résultat de la recherche dans chaque dossiers -->
+    <div v-for="folder in folders" :key="folder.id">
+      <div
+        v-if="
+          searchValue && filterWithSearch(getRessourcesFolder(folder.id)).length
+        "
+        class="block-content folder-content"
+      >
+        <div class="back-content"></div>
+        <div class="title">{{ folder.name }}</div>
+        <ul>
+          <li
+            v-for="(item, i) in filterWithSearch(
+              getRessourcesFolder(folder.id)
+            )"
+            :key="item.id"
+          >
+            <RessourceCard
+              @contextmenu.prevent="showContext(false, item, $event)"
+              @consultRessource="addRecentlyConsulted"
+              :ressource="item"
+            />
+            <div
+              class="separation"
+              v-if="
+                i < filterWithSearch(getRessourcesFolder(folder.id)).length - 1
+              "
+            ></div>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Non répertoriés -->
@@ -203,6 +241,7 @@ export default {
       showAddRessource: false,
       showEditRessource: false,
       editRessource: {},
+      searchValue: null,
     };
   },
   mounted() {
@@ -216,6 +255,27 @@ export default {
     });
   },
   methods: {
+    search(value) {
+      if (value.length >= 2) {
+        this.searchValue = value.toLowerCase();
+        this.openFolder = null;
+      } else {
+        this.searchValue = null;
+      }
+    },
+    filterWithSearch(array, isFolder) {
+      return isFolder === true
+        ? array.filter((elt) =>
+            elt.name.toLowerCase().includes(this.searchValue)
+          )
+        : array.filter((elt) => {
+            return (
+              elt.name.toLowerCase().includes(this.searchValue) ||
+              elt.desc?.toLowerCase().includes(this.searchValue) ||
+              elt.url.toLowerCase().includes(this.searchValue)
+            );
+          });
+    },
     hideContext() {
       this.context.ressource = null;
       this.context.folder = null;
@@ -282,25 +342,29 @@ export default {
       }
     },
     getPinnedRessources() {
-      return this.ressources.filter((r) => r.pinned && !r.deleted);
+      const ressources = this.ressources.filter((r) => r.pinned && !r.deleted);
+      return this.searchValue ? this.filterWithSearch(ressources) : ressources;
     },
     getNotListedRessources() {
-      return this.ressources.filter((r) => !r.folder && !r.deleted);
-    },
-    showRessourcesFolder(folder) {
-      this.openFolder = folder;
+      const ressources = this.ressources.filter(
+        (r) => !r.folder && !r.deleted && !r.pinned
+      );
+      return this.searchValue ? this.filterWithSearch(ressources) : ressources;
     },
     getRessourcesFolder(folderId) {
-      return this.ressources.filter((r) => r.folder === folderId && !r.deleted);
+      return this.ressources.filter(
+        (r) => r.folder === folderId && !r.deleted && !r.pinned
+      );
     },
     getFoldersWithFavoriteFirst() {
-      return this.folders
+      const folders = this.folders
         .sort(function compare(a, b) {
           if (a.favorite && a.favorite != b.favorite) return -1;
           if (b.favorite && a.favorite != b.favorite) return 1;
           return 0;
         })
         .filter((f) => !f.deleted);
+      return this.searchValue ? this.filterWithSearch(folders, true) : folders;
     },
     changeFavorite(folder) {
       folder.favorite = !folder.favorite;
@@ -414,6 +478,7 @@ body,
   color: var(--text-color);
   max-width: 100vw;
   background-color: var(--background-color);
+  min-height: 100vh;
 }
 
 .header {
