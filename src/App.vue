@@ -1,16 +1,33 @@
 <template>
   <div @click="hideContext" class="app">
-    <MyAlert v-if="alert.message" @closeAlert="closeAlert" :alert="alert"/>
-    <ContextMenu @click.prevent.stop v-if="context.ressource || context.folder" @pinnedORunpinned="pinnedORunpinned" @deleteElement="deleteElement" @hideContext="hideContext" :context="context" :folders="folders" @moveToFolder="moveToFolder"/>
+    <MyAlert v-if="alert.message" @closeAlert="closeAlert" :alert="alert" />
+    <ContextMenu
+      @click.prevent.stop
+      v-if="context.ressource || context.folder"
+      @pinnedORunpinned="pinnedORunpinned"
+      @editElement="editElement"
+      @deleteElement="deleteElement"
+      @hideContext="hideContext"
+      :context="context"
+      :folders="folders"
+      @moveToFolder="moveToFolder"
+    />
 
     <div class="header">
-      <img src="./assets/logo.png" alt="devbox logo">
-      <SearchBar/>
+      <img src="./assets/logo.png" alt="devbox logo" />
+      <SearchBar />
     </div>
 
     <!-- Ressources épinglés -->
     <div v-if="getPinnedRessources().length" class="carousel">
-      <RessourceCard @contextmenu.prevent="showContext(false, item, $event, true)" @consultRessource="addRecentlyConsulted" v-for="item in getPinnedRessources()" :key="item.id" :ressource="item" :pinnedSection="true"/>
+      <RessourceCard
+        @contextmenu.prevent="showContext(false, item, $event, true)"
+        @consultRessource="addRecentlyConsulted"
+        v-for="item in getPinnedRessources()"
+        :key="item.id"
+        :ressource="item"
+        :pinnedSection="true"
+      />
     </div>
 
     <!-- Consultés dernièrement -->
@@ -19,7 +36,7 @@
       <div class="title">Consultés dernièrement</div>
       <ul>
         <li v-for="(item, i) in recentlyConsulted" :key="item.id">
-          <RessourceCard :ressource="item"/>
+          <RessourceCard :ressource="item" />
           <div class="separation" v-if="i < recentlyConsulted.length - 1"></div>
         </li>
       </ul>
@@ -30,12 +47,42 @@
       <div class="back-content"></div>
       <div class="title">Dossiers</div>
       <ul>
-        <li v-for="folder in getFoldersWithFavoriteFirst()" :key="folder.id" class="folder" @contextmenu.prevent="showContext(true, folder, $event)">
-          <svg class="folder-svg" xmlns="http://www.w3.org/2000/svg" width="121.722" height="97.378" viewBox="0 0 121.722 97.378">
-            <path @click="showRessourcesFolder(folder)" data-name="Icon material-folder" d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z" transform="translate(-3 -6)" fill="#e9665b"/>
+        <li
+          v-for="folder in getFoldersWithFavoriteFirst()"
+          :key="folder.id"
+          class="folder"
+          @contextmenu.prevent="showContext(true, folder, $event)"
+        >
+          <svg
+            class="folder-svg"
+            xmlns="http://www.w3.org/2000/svg"
+            width="121.722"
+            height="97.378"
+            viewBox="0 0 121.722 97.378"
+          >
+            <path
+              @click="showRessourcesFolder(folder)"
+              data-name="Icon material-folder"
+              d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z"
+              transform="translate(-3 -6)"
+              fill="#e9665b"
+            />
           </svg>
-          <svg class="star-svg" :class="folder.favorite ? 'favorite' : ''" xmlns="http://www.w3.org/2000/svg" width="21.745" height="20.813" viewBox="0 0 21.745 20.813">
-            <path @click="changeFavorite(folder)" data-name="Icon awesome-star" d="M11.147.723,8.493,6.1,2.555,6.97a1.3,1.3,0,0,0-.719,2.219l4.3,4.186L5.116,19.289A1.3,1.3,0,0,0,7,20.659l5.312-2.792,5.312,2.792a1.3,1.3,0,0,0,1.886-1.37L18.5,13.376l4.3-4.186a1.3,1.3,0,0,0-.719-2.219L16.134,6.1,13.48.723a1.3,1.3,0,0,0-2.333,0Z" transform="translate(-1.441 0.001)" fill="#f7f7f7"/>
+          <svg
+            class="star-svg"
+            :class="folder.favorite ? 'favorite' : ''"
+            xmlns="http://www.w3.org/2000/svg"
+            width="21.745"
+            height="20.813"
+            viewBox="0 0 21.745 20.813"
+          >
+            <path
+              @click="changeFavorite(folder)"
+              data-name="Icon awesome-star"
+              d="M11.147.723,8.493,6.1,2.555,6.97a1.3,1.3,0,0,0-.719,2.219l4.3,4.186L5.116,19.289A1.3,1.3,0,0,0,7,20.659l5.312-2.792,5.312,2.792a1.3,1.3,0,0,0,1.886-1.37L18.5,13.376l4.3-4.186a1.3,1.3,0,0,0-.719-2.219L16.134,6.1,13.48.723a1.3,1.3,0,0,0-2.333,0Z"
+              transform="translate(-1.441 0.001)"
+              fill="#f7f7f7"
+            />
           </svg>
           <span class="folder-name">{{ folder.name }}</span>
         </li>
@@ -43,57 +90,103 @@
     </div>
 
     <!-- Contenu d'un dossier -->
-    <div v-if="openFolder && getRessourcesFolder(openFolder.id).length" class="block-content folder-content">
+    <div
+      v-if="openFolder && getRessourcesFolder(openFolder.id).length"
+      class="block-content folder-content"
+    >
       <div class="back-content"></div>
       <div class="title">{{ openFolder.name }}</div>
       <div class="close" @click="openFolder = null">X</div>
       <ul>
-        <li v-for="(item, i) in getRessourcesFolder(openFolder.id)" :key="item.id">
-          <RessourceCard @contextmenu.prevent="showContext(false, item, $event)" @consultRessource="addRecentlyConsulted" :ressource="item"/>
-          <div class="separation" v-if="i < getRessourcesFolder(openFolder.id).length - 1"></div>
+        <li
+          v-for="(item, i) in getRessourcesFolder(openFolder.id)"
+          :key="item.id"
+        >
+          <RessourceCard
+            @contextmenu.prevent="showContext(false, item, $event)"
+            @consultRessource="addRecentlyConsulted"
+            :ressource="item"
+          />
+          <div
+            class="separation"
+            v-if="i < getRessourcesFolder(openFolder.id).length - 1"
+          ></div>
         </li>
       </ul>
     </div>
 
     <!-- Non répertoriés -->
-    <div v-if="getNotListedRessources().length" class="block-content not-listed">
+    <div
+      v-if="getNotListedRessources().length"
+      class="block-content not-listed"
+    >
       <div class="back-content"></div>
       <div class="title">Non répertoriés</div>
       <ul>
         <li v-for="(item, i) in getNotListedRessources()" :key="item.id">
-          <RessourceCard @contextmenu.prevent="showContext(false, item, $event)" @consultRessource="addRecentlyConsulted" :ressource="item"/>
-          <div class="separation" v-if="i < getNotListedRessources().length - 1"></div>
+          <RessourceCard
+            @contextmenu.prevent="showContext(false, item, $event)"
+            @consultRessource="addRecentlyConsulted"
+            :ressource="item"
+          />
+          <div
+            class="separation"
+            v-if="i < getNotListedRessources().length - 1"
+          ></div>
         </li>
       </ul>
     </div>
 
     <!-- Bouton ajout de ressource -->
-    <button @click="showAddRessource = !showAddRessource" function="show-add-ressource">+</button>
+    <button
+      @click="showAddRessource = !showAddRessource"
+      function="show-add-ressource"
+    >
+      +
+    </button>
 
     <!-- Modal d'ajout d'une ressource -->
-    <AddRessourceForm @errorAlert="errorAlert" @addRessource="add" @close="showAddRessource = !showAddRessource" :folders="folders" :showAddRessource="showAddRessource"/>
+    <AddRessourceForm
+      @errorAlert="errorAlert"
+      @addRessource="add"
+      @close="showAddRessource = !showAddRessource"
+      :folders="folders"
+      :showAddRessource="showAddRessource"
+    />
+
+    <!-- Modal d'ajout d'une ressource -->
+    <EditRessourceForm
+      @errorAlert="errorAlert"
+      @editRessource="edit"
+      @close="showEditRessource = !showEditRessource"
+      :folders="folders"
+      :editRessource="editRessource"
+      :showEditRessource="showEditRessource"
+    />
   </div>
 </template>
 
 <script>
-import RessourceCard from './components/RessourceCard.vue'
-import SearchBar from './components/SearchBar.vue'
-import AddRessourceForm from './components/AddRessourceForm.vue'
-import ContextMenu from './components/ContextMenu.vue'
+import RessourceCard from "./components/RessourceCard.vue";
+import SearchBar from "./components/SearchBar.vue";
+import AddRessourceForm from "./components/AddRessourceForm.vue";
+import EditRessourceForm from "./components/EditRessourceForm.vue";
+import ContextMenu from "./components/ContextMenu.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     RessourceCard,
     SearchBar,
     AddRessourceForm,
+    EditRessourceForm,
     ContextMenu,
   },
   data() {
     return {
       alert: {
-        message: '',
-        type: '',
+        message: "",
+        type: "",
         bump: false,
       },
       context: {
@@ -108,157 +201,208 @@ export default {
       recentlyConsulted: [],
       openFolder: null,
       showAddRessource: false,
-    }
+      showEditRessource: false,
+      editRessource: {},
+    };
   },
   mounted() {
-    this.ressources = JSON.parse(localStorage.getItem('ressources')) || []
-    this.recentlyConsulted = JSON.parse(localStorage.getItem('recentlyConsulted')) || []
-    this.folders = JSON.parse(localStorage.getItem('folders')) || []
+    this.ressources = JSON.parse(localStorage.getItem("ressources")) || [];
+    this.recentlyConsulted =
+      JSON.parse(localStorage.getItem("recentlyConsulted")) || [];
+    this.folders = JSON.parse(localStorage.getItem("folders")) || [];
 
-    window.addEventListener('scroll', () => {
-      this.hideContext()
-    })
+    window.addEventListener("scroll", () => {
+      this.hideContext();
+    });
   },
   methods: {
     hideContext() {
-      this.context.ressource = null
-      this.context.folder = null
+      this.context.ressource = null;
+      this.context.folder = null;
     },
     pinnedORunpinned() {
-      this.context.ressource.pinned = !this.context.ressource.pinned
-      const pinned = this.context.ressource.pinned
-      this.hideContext()
-      localStorage.setItem('ressources', JSON.stringify(this.ressources))
-      this.alert.message = `Resource ${pinned ? 'épinglée' : 'retirée des éléments épinglés'} avec succès 🥳`
-      this.alert.type = 'success'
-      if (pinned) window.scrollTo({top: 0, behavior: 'smooth'})
+      this.context.ressource.pinned = !this.context.ressource.pinned;
+      const pinned = this.context.ressource.pinned;
+      this.hideContext();
+      localStorage.setItem("ressources", JSON.stringify(this.ressources));
+      this.alert.message = `Resource ${
+        pinned ? "épinglée" : "retirée des éléments épinglés"
+      } avec succès 🥳`;
+      this.alert.type = "success";
+      if (pinned) window.scrollTo({ top: 0, behavior: "smooth" });
     },
     moveToFolder(value) {
-      this.context.ressource.folder = value
-      this.hideContext()
-      localStorage.setItem('ressources', JSON.stringify(this.ressources))
-      this.alert.message = 'Ressource déplacée avec succès 🥳'
-      this.alert.type = 'success'
+      this.context.ressource.folder = value;
+      this.hideContext();
+      localStorage.setItem("ressources", JSON.stringify(this.ressources));
+      this.alert.message = "Ressource déplacée avec succès 🥳";
+      this.alert.type = "success";
     },
     deleteElement() {
       if (this.context.ressource) {
-        this.context.ressource.deleted = true
-        localStorage.setItem('ressources', JSON.stringify(this.ressources))
-        const index = this.recentlyConsulted.findIndex((elt) => elt.id === this.context.ressource.id)
+        this.context.ressource.deleted = true;
+        localStorage.setItem("ressources", JSON.stringify(this.ressources));
+        const index = this.recentlyConsulted.findIndex(
+          (elt) => elt.id === this.context.ressource.id
+        );
         if (index > -1) {
-          this.recentlyConsulted.splice(index, 1)
-          localStorage.setItem('recentlyConsulted', JSON.stringify(this.recentlyConsulted))
+          this.recentlyConsulted.splice(index, 1);
+          localStorage.setItem(
+            "recentlyConsulted",
+            JSON.stringify(this.recentlyConsulted)
+          );
         }
-        this.hideContext()
-        return
+        this.hideContext();
+        return;
       }
       // Suppression d'un dossier => met en non répertorié les ressources
-      this.context.folder.deleted = true
-      localStorage.setItem('folders', JSON.stringify(this.folders))
-      this.ressources.forEach(ressource => {
-        if (ressource.folder === this.context.folder.id) ressource.folder = null
-      })
-      localStorage.setItem('ressources', JSON.stringify(this.ressources))
-      this.hideContext()
+      this.context.folder.deleted = true;
+      localStorage.setItem("folders", JSON.stringify(this.folders));
+      this.ressources.forEach((ressource) => {
+        if (ressource.folder === this.context.folder.id)
+          ressource.folder = null;
+      });
+      localStorage.setItem("ressources", JSON.stringify(this.ressources));
+      this.hideContext();
+    },
+    editElement(ressource) {
+      this.showEditRessource = true;
+      this.editRessource = ressource;
+      return;
     },
     showContext(isFolder, element, e, pinned) {
-      this.hideContext()
-      this.context.pinned = pinned
-      this.context.posX = e.clientX
-      this.context.posY = e.clientY + window.scrollY
+      this.hideContext();
+      this.context.pinned = pinned;
+      this.context.posX = e.clientX;
+      this.context.posY = e.clientY + window.scrollY;
       if (isFolder) {
-        this.context.folder = element
+        this.context.folder = element;
       } else {
-        this.context.ressource = element
+        this.context.ressource = element;
       }
     },
     getPinnedRessources() {
-      return this.ressources.filter((r) => r.pinned && !r.deleted)
+      return this.ressources.filter((r) => r.pinned && !r.deleted);
     },
     getNotListedRessources() {
-      return this.ressources.filter((r) => !r.folder && !r.deleted)
+      return this.ressources.filter((r) => !r.folder && !r.deleted);
     },
     showRessourcesFolder(folder) {
-      this.openFolder = folder
+      this.openFolder = folder;
     },
     getRessourcesFolder(folderId) {
-      return this.ressources.filter((r) => r.folder === folderId && !r.deleted)
+      return this.ressources.filter((r) => r.folder === folderId && !r.deleted);
     },
     getFoldersWithFavoriteFirst() {
-      return this.folders.sort(function compare(a, b) {
-        if (a.favorite && a.favorite != b.favorite) return -1
-        if (b.favorite && a.favorite != b.favorite) return 1
-        return 0
-      }).filter((f) => !f.deleted)
+      return this.folders
+        .sort(function compare(a, b) {
+          if (a.favorite && a.favorite != b.favorite) return -1;
+          if (b.favorite && a.favorite != b.favorite) return 1;
+          return 0;
+        })
+        .filter((f) => !f.deleted);
     },
     changeFavorite(folder) {
-      folder.favorite = !folder.favorite
-      localStorage.setItem('folders', JSON.stringify(this.folders))
+      folder.favorite = !folder.favorite;
+      localStorage.setItem("folders", JSON.stringify(this.folders));
     },
     async add(element) {
-      if (element.folder) element.folder = Number(element.folder)
-      element.id = this.ressources.length + 1
+      if (element.folder) element.folder = Number(element.folder);
+      element.id = this.ressources.length + 1;
 
-      const text = await fetch(element.url).then(async (response) => {
-        if (response.ok) return response.text()
-        return null
-      }).catch(() => {
-        return null
-      })
+      const text = await fetch(element.url)
+        .then(async (response) => {
+          if (response.ok) return response.text();
+          return null;
+        })
+        .catch(() => {
+          return null;
+        });
       if (text) {
-        const div = document.createElement('div')
-        div.innerHTML = text.trim()
-        div.style.display = 'none'
-        document.body.prepend(div)
-        element.desc = div.querySelector('title').innerText
-        div.remove()
+        const div = document.createElement("div");
+        div.innerHTML = text.trim();
+        div.style.display = "none";
+        document.body.prepend(div);
+        element.desc = div.querySelector("title").innerText;
+        div.remove();
       }
-      this.ressources.push(element)
-      localStorage.setItem('ressources', JSON.stringify(this.ressources))
-      this.alert.message = 'Ressource ajoutée avec succès 🥳'
-      this.alert.type = 'success'
+      this.ressources.push(element);
+      localStorage.setItem("ressources", JSON.stringify(this.ressources));
+      this.alert.message = "Ressource ajoutée avec succès 🥳";
+      this.alert.type = "success";
+    },
+    async edit(element) {
+      // TODO: Get the resource and update in localstorage
+      if (element.folder) element.folder = Number(element.folder);
+      const index = this.ressources.findIndex((r) => r.id === element.id);
+      const text = await fetch(element.url)
+        .then(async (response) => {
+          if (response.ok) return response.text();
+          return null;
+        })
+        .catch(() => {
+          return null;
+        });
+      if (text) {
+        const div = document.createElement("div");
+        div.innerHTML = text.trim();
+        div.style.display = "none";
+        document.body.prepend(div);
+        element.desc = div.querySelector("title").innerText;
+        div.remove();
+      }
+      this.ressources[index] = element;
+      localStorage.setItem("ressources", JSON.stringify(this.ressources));
+      this.alert.message = "Ressource ajoutée avec succès 🥳";
+      this.alert.type = "success";
     },
     addRecentlyConsulted(ressource) {
-      const index = this.recentlyConsulted.findIndex((elt) => elt.id === ressource.id)
+      const index = this.recentlyConsulted.findIndex(
+        (elt) => elt.id === ressource.id
+      );
       if (index > -1) {
-        this.recentlyConsulted.splice(index, 1)
+        this.recentlyConsulted.splice(index, 1);
       } else if (this.recentlyConsulted.length >= 3) {
-        this.recentlyConsulted.pop()
+        this.recentlyConsulted.pop();
       }
-      this.recentlyConsulted.unshift(ressource)
-      localStorage.setItem('recentlyConsulted', JSON.stringify(this.recentlyConsulted))
+      this.recentlyConsulted.unshift(ressource);
+      localStorage.setItem(
+        "recentlyConsulted",
+        JSON.stringify(this.recentlyConsulted)
+      );
     },
     closeAlert() {
-      this.alert.message = ''
-      this.alert.type = ''
-      this.alert.bump = false
+      this.alert.message = "";
+      this.alert.type = "";
+      this.alert.bump = false;
     },
     errorAlert(value) {
       if (this.alert.message === value) {
-        this.alert.bump = true
-        return
+        this.alert.bump = true;
+        return;
       }
-      this.alert.message = value
-      this.alert.type = 'error'
-    }
-  }
-}
+      this.alert.message = value;
+      this.alert.type = "error";
+    },
+  },
+};
 </script>
 
 <style>
 :root {
-  --background-color: #FFFAF7;
-  --recently-color: #FFEACB;
-  --folder-background-color: #CED8F5;
-  --folder-color: #FAD0CD;
+  --background-color: #fffaf7;
+  --recently-color: #ffeacb;
+  --folder-background-color: #ced8f5;
+  --folder-color: #fad0cd;
   --text-color: #707070;
-  --not-listed-color: #CAEFD7;
+  --not-listed-color: #caefd7;
   --folder-content-color: #b7c8f8;
-  --white: #FFFFFF;
+  --white: #ffffff;
   --border-radius: 15px;
 }
 
-body, * {
+body,
+* {
   margin: 0;
 }
 
@@ -307,9 +451,8 @@ body, * {
 .separation {
   margin: 1rem 0 1rem 0;
   height: 1px;
-  background-color: #DDDDDD;
+  background-color: #dddddd;
 }
-
 
 .folders ul {
   display: flex;
@@ -329,7 +472,7 @@ body, * {
   fill: var(--folder-color);
 }
 .folder-svg path:hover {
-  fill: #E9665B;
+  fill: #e9665b;
   cursor: pointer;
 }
 .star-svg path {
@@ -344,11 +487,11 @@ body, * {
   fill: #808080;
 }
 .folder.active .folder-svg path {
-  fill: #E9665B;
+  fill: #e9665b;
   cursor: default !important;
 }
 .folder.active .star-svg path {
-  stroke: #F7F7F7;
+  stroke: #f7f7f7;
   cursor: default !important;
 }
 .star-svg {
@@ -390,10 +533,12 @@ body, * {
 .folders .back-content {
   background-color: var(--folder-background-color);
 }
-.not-listed, .not-listed .back-content {
+.not-listed,
+.not-listed .back-content {
   background-color: var(--not-listed-color);
 }
-.folder-content, .folder-content .back-content {
+.folder-content,
+.folder-content .back-content {
   background-color: var(--folder-content-color);
 }
 
