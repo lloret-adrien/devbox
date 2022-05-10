@@ -1,43 +1,22 @@
 <template>
-  <form v-if="showEditRessource" function="add-ressource" class="block-content">
+  <form v-if="showEditFolder" function="add-folder" class="block-content">
     <div class="back-content"></div>
     <div>
-      <div class="title">Modifier une Ressource</div>
+      <div class="title">Modifier une Dossier</div>
     </div>
     <div class="close" @click="closeModal()">X</div>
     <input
       placeholder="Titre"
       type="text"
       name="name"
-      v-model="ressource.name"
+      v-model="folder.name"
       required
     />
-    <input
-      placeholder="Lien"
-      type="text"
-      name="url"
-      v-model="ressource.url"
-      required
-    />
-    <input
-      placeholder="Image"
-      type="text"
-      name="img_url"
-      v-model="ressource.image"
-    />
+
     <div class="flex">
-      <div class="select">
-        <select name="folder" v-model="selectedFolder.id">
-          <option class="placeholder">Dossier</option>
-          <option v-for="folder in folders" :key="folder.id" :value="folder.id">
-            {{ folder.name }}
-          </option>
-        </select>
-        <div class="select__arrow"></div>
-      </div>
       <label id="pinned" class="control control--checkbox">
         Épinglé
-        <input type="checkbox" name="pinned" v-model="ressource.pinned" />
+        <input type="checkbox" name="pinned" v-model="folder.pinned" />
         <div class="control__indicator"></div>
       </label>
     </div>
@@ -48,21 +27,15 @@
 
 <script>
 export default {
-  name: "EditRessourceForm",
+  name: "EditFolderForm",
   props: {
     folders: Array,
-    ressources: Array,
-    editRessource: Object,
-    showEditRessource: Boolean,
+    editFolder: Object,
+    showEditFolder: Boolean,
   },
   computed: {
-    ressource() {
-      return this.editRessource;
-    },
-    selectedFolder() {
-      return this.folders.find((f) => {
-        return (f.id = this.ressource.folder);
-      });
+    folder() {
+      return this.editFolder;
     },
   },
 
@@ -71,20 +44,14 @@ export default {
       this.$emit("close", false);
     },
     edit() {
-      const id = this.editRessource.id;
-      const url = document.querySelector('[name="url"]')?.value;
-      const folder = document.querySelector('[name="folder"]')?.value || null;
-      const pinned = document.querySelector('[name="pinned"]')?.checked;
-      const name = document.querySelector('[name="name"]')?.value;
-      const image = document.querySelector('[name="img_url"]')?.value;
+      const id = this.editFolder.id;
+      const name = document.querySelector('[name="name"]')?.value || null;
+      const favorite = document.querySelector('[name="favorite"]')?.checked;
       if (url.length > 0 && name && image) {
-        this.$emit("editRessource", {
+        this.$emit("editFolder", {
           id,
-          url,
           folder,
-          pinned,
-          name,
-          image,
+          favorite,
         });
         this.closeModal();
       } else {
@@ -99,12 +66,12 @@ export default {
 </script>
 
 <style scoped>
-form[function="add-ressource"],
-form[function="add-ressource"] .back-content {
+form[function="add-folder"],
+form[function="add-folder"] .back-content {
   background-color: var(--not-listed-color);
 }
 
-form[function="add-ressource"] {
+form[function="add-folder"] {
   position: fixed;
   width: calc(100% - 4rem);
   bottom: 0;
@@ -123,8 +90,8 @@ form[function="add-ressource"] {
   }
 }
 
-form[function="add-ressource"] input,
-form[function="add-ressource"] select,
+form[function="add-folder"] input,
+form[function="add-folder"] select,
 form #pinned {
   background-color: var(--background-color);
   height: 50px;
@@ -157,8 +124,8 @@ form input[type="submit"] {
 }
 .select select:hover,
 .select select:focus,
-form[function="add-ressource"] input:focus,
-form[function="add-ressource"] input:hover {
+form[function="add-folder"] input:focus,
+form[function="add-folder"] input:hover {
   background: #ccc;
 }
 .select select:disabled {
