@@ -6,6 +6,7 @@
       v-if="context.ressource || context.folder"
       @pinnedORunpinned="pinnedORunpinned"
       @editElement="editElement"
+      @editFolderHandler="editFolderHandler"
       @deleteElement="deleteElement"
       @hideContext="hideContext"
       :context="context"
@@ -52,6 +53,23 @@
       <div class="back-content"></div>
       <div class="title">Dossiers</div>
       <ul>
+        <li>
+          <svg
+            class="folder-svg"
+            xmlns="http://www.w3.org/2000/svg"
+            width="121.722"
+            height="97.378"
+            viewBox="0 0 121.722 97.378"
+          >
+            <path
+              @click="showAddFolder = !showAddFolder"
+              data-name="Icon material-folder"
+              d="M51.689,6H15.172A12.156,12.156,0,0,0,3.061,18.172L3,91.205a12.208,12.208,0,0,0,12.172,12.172H112.55a12.208,12.208,0,0,0,12.172-12.172V30.344A12.208,12.208,0,0,0,112.55,18.172H63.861Z"
+              transform="translate(-3 -6)"
+              fill="#e9665b"
+            />
+          </svg>
+        </li>
         <li
           v-for="folder in getFoldersWithFavoriteFirst()"
           :key="folder.id"
@@ -193,6 +211,14 @@
     />
 
     <!-- Modal d'ajout d'une ressource -->
+    <AddFolderForm
+      @errorAlert="errorAlert"
+      @addFolder="addFolder"
+      @close="showAddFolder = !showAddFolder"
+      :showAddFolder="showAddFolder"
+    />
+
+    <!-- Modal d'edite d'une ressource -->
     <EditRessourceForm
       @errorAlert="errorAlert"
       @editRessource="edit"
@@ -201,6 +227,15 @@
       :editRessource="editRessource"
       :showEditRessource="showEditRessource"
     />
+
+    <!-- Modal d'edite d'un folder -->
+    <EditFolderForm
+      @errorAlert="errorAlert"
+      @editFolder="editFolder"
+      @close="showEditFolder = !showEditFolder"
+      :folderToBeEdited="folderToBeEdited"
+      :showEditFolder="showEditFolder"
+    />
   </div>
 </template>
 
@@ -208,6 +243,8 @@
 import RessourceCard from "./components/RessourceCard.vue";
 import SearchBar from "./components/SearchBar.vue";
 import AddRessourceForm from "./components/AddRessourceForm.vue";
+import AddFolderForm from "./components/AddFolderForm.vue";
+import EditFolderForm from "./components/EditFolderForm.vue";
 import EditRessourceForm from "./components/EditRessourceForm.vue";
 import ContextMenu from "./components/ContextMenu.vue";
 
@@ -217,7 +254,9 @@ export default {
     RessourceCard,
     SearchBar,
     AddRessourceForm,
+    AddFolderForm,
     EditRessourceForm,
+    EditFolderForm,
     ContextMenu,
   },
   data() {
@@ -239,8 +278,11 @@ export default {
       recentlyConsulted: [],
       openFolder: null,
       showAddRessource: false,
+      showAddFolder: false,
       showEditRessource: false,
       editRessource: {},
+      showEditFolder: false,
+      folderToBeEdited: {},
       searchValue: null,
     };
   },
@@ -328,6 +370,11 @@ export default {
     editElement(ressource) {
       this.showEditRessource = true;
       this.editRessource = ressource;
+      return;
+    },
+    editFolderHandler(folder) {
+      this.showEditFolder = true;
+      this.folderToBeEdited = folder;
       return;
     },
     showContext(isFolder, element, e, pinned) {
@@ -434,6 +481,20 @@ export default {
         "recentlyConsulted",
         JSON.stringify(this.recentlyConsulted)
       );
+    },
+    editFolder(element) {
+      const index = this.folders.findIndex((r) => r.id === element.id);
+      this.folders[index] = element;
+      localStorage.setItem("folders", JSON.stringify(this.folders));
+      this.alert.message = "Dossier Mofifier avec succès 🥳";
+      this.alert.type = "success";
+    },
+    addFolder(element) {
+      element.id = this.ressources.length + 1;
+      this.folders.push(element);
+      localStorage.setItem("folders", JSON.stringify(this.folders));
+      this.alert.message = "Dossier ajoutée avec succès 🥳";
+      this.alert.type = "success";
     },
     closeAlert() {
       this.alert.message = "";

@@ -17,7 +17,18 @@
       "
       class="hr"
     ></div>
-    <div class="hover" @click="this.$emit('editElement', context.ressource)">
+    <div
+      v-if="context.ressource !== null"
+      class="hover"
+      @click="this.$emit('editElement', context.ressource)"
+    >
+      Modifier
+    </div>
+    <div
+      v-else
+      class="hover"
+      @click="this.$emit('editFolderHandler', context.folder)"
+    >
       Modifier
     </div>
     <div v-if="!context.pinned" class="hr"></div>

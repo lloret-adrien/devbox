@@ -1,5 +1,5 @@
 <template>
-  <form v-if="showEditFolder" function="add-folder" class="block-content">
+  <form v-if="showAddFolder" function="add-folder" class="block-content">
     <div class="back-content"></div>
     <div>
       <div class="title">Modifier un Dossier</div>
@@ -27,28 +27,27 @@
 
 <script>
 export default {
-  name: "EditFolderForm",
+  name: "AddFolderForm",
   props: {
-    folderToBeEdited: Object,
-    showEditFolder: Boolean,
+    showAddFolder: Boolean,
   },
-  computed: {
-    folder() {
-      return this.folderToBeEdited;
-    },
+  data() {
+    return {
+      folder: {
+        name: "",
+        favorite: false,
+      },
+    };
   },
-
   methods: {
     closeModal() {
       this.$emit("close", false);
     },
     edit() {
-      const id = this.folderToBeEdited.id;
       const name = document.querySelector('[name="name"]')?.value || null;
       const favorite = document.querySelector('[name="favorite"]')?.checked;
       if (name.length > 0) {
-        this.$emit("editFolder", {
-          id,
+        this.$emit("addFolder", {
           name,
           favorite,
         });
