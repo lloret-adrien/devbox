@@ -55,6 +55,7 @@
       <ul>
         <li>
           <svg
+            id="add-folder"
             class="folder-svg"
             xmlns="http://www.w3.org/2000/svg"
             width="121.722"
@@ -706,5 +707,11 @@ button[function="show-add-ressource"]:hover {
 
 button[function="show-add-ressource"]:active {
   transform: scale(0.8);
+}
+
+#add-folder path {
+  fill: #f9d0cd69;
+  stroke: #ff8178;
+  stroke-dasharray: 10px;
 }
 </style>
