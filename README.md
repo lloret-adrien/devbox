@@ -20,6 +20,6 @@ KEY: folders  | VALUE: [{"id":1,"name":"JavaScript Front","icon":"","favorite":t
 
 ### Checkout our cool presentation:
 
-By [clicking here](https://discord.com/channels/@me/969587745095819274/976493007798956112).
+By [clicking here](https://docs.google.com/presentation/d/1UmpaPntA2ElasHuaP9rdLxriKSdfj-1G5Num8V4xt6E/edit?usp=sharing).
 
 # Devbox-frontend
