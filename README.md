@@ -1,25 +1,25 @@
 # devbox
 
 ## Project setup
+
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
+### Add this to your local storage to get up and running fast:
+
 ```
 
-### Compiles and minifies for production
-```
-npm run build
+KEY: recentlyConsulted | VALUE: [{"id":1,"name":"Adonis JS","url":"https://adonisjs.com/","desc":"AdonisJS - A fully featured web framework for Node.js","pinned":true,"folder":2},{"id":2,"name":"Anime JS","url":"https://animejs.com/","image":"https://animejs.com/documentation/assets/img/social-media-image.png","desc":"anime.js • JavaScript animation engine","pinned":true,"folder":1},{"url":"https://adonisjs.com/","folder":1,"pinned":true,"name":"Adonis JS","image":"https://miro.medium.com/max/400/0*KhW-3AFJ4qYeURtJ.jpg","id":5,"desc":"AdonisJS - A fully featured web framework for Node.js"}]
+
+KEY: ressources | VALUE: [{"id":1,"name":"Adonis JS","url":"https://adonisjs.com/","desc":"AdonisJS - A fully featured web framework for Node.js","pinned":true,"folder":2},{"id":2,"name":"Anime JS","url":"https://animejs.com/","image":"https://animejs.com/documentation/assets/img/social-media-image.png","desc":"anime.js • JavaScript animation engine","pinned":true,"folder":1},{"id":3,"name":"Three JS","image":"https://aws1.discourse-cdn.com/standard17/uploads/threejs/original/2X/e/e4f86d2200d2d35c30f7b1494e96b9595ebc2751.png","url":"https://threejs.org/","desc":"","pinned":false,"folder":1},{"id":4,"name":"MDN","url":"https://developer.mozilla.org/fr/","desc":"The MDN Web Docs site provides information about Open Web technologies including HTML, CSS, and APIs for both Web sites and progressive web apps.","pinned":false,"folder":null},{"url":"https://adonisjs.com/","folder":1,"pinned":true,"name":"Adonis JS","image":"https://miro.medium.com/max/400/0*KhW-3AFJ4qYeURtJ.jpg","id":5,"desc":"AdonisJS - A fully featured web framework for Node.js"},{"url":"https://nuxtjs.org/","folder":2,"pinned":false,"name":"Nuxt","image":"https://pbs.twimg.com/profile_images/1438501794754142212/_SXc-Z_h_400x400.jpg","id":6}]
+
+KEY: folders  | VALUE: [{"id":1,"name":"JavaScript Front","icon":"","favorite":true},{"id":2,"name":"JavaScript Back","icon":"","favorite":true},{"id":4,"name":"PHP","icon":"","favorite":false},{"id":3,"name":"Python","icon":"","favorite":true}]
+
 ```
 
-### Lints and fixes files
-```
-npm run lint
-```
+### Checkout our cool presentation:
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+By [clicking here](https://discord.com/channels/@me/969587745095819274/976493007798956112).
+
 # Devbox-frontend
