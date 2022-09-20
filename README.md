@@ -28,3 +28,7 @@ By [clicking here](https://docs.google.com/presentation/d/1UmpaPntA2ElasHuaP9rdL
 ### Checkout also our cool design system:
 
 https://xd.adobe.com/view/b6f38f2f-60f5-4774-90bf-ec83ddbd3e0b-e3a0/
+
+### Checkout video demonstration:
+
+https://user-images.githubusercontent.com/60384986/191294844-3d422f7a-3fa4-4700-98e3-675abee0c797.mp4
